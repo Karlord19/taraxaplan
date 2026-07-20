@@ -8,34 +8,74 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <div id="sidebar" class="collapsed">
+    <div id="sidebar">
         <button id="toggle-sidebar">☰</button>
         <div class="sidebar-content">
             <h2>Taraxaplan</h2>
             <ul>
-                <li><a href="#" class="active">Dependency Graph</a></li>
-                <!-- Future pages go here -->
+                <li><a href="#" class="nav-link active" data-target="workspace-graph">Dependency Graph</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-items">Items</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-people">People (Organizers)</a></li>
             </ul>
+            <hr class="divider">
+            <button id="btn-save" class="action-btn">💾 Save Data</button>
+            <input type="file" id="file-load" accept=".json" class="hidden">
+            <button id="btn-load" class="action-btn" onclick="document.getElementById('file-load').click()">📂 Load Data</button>
         </div>
     </div>
 
-    <!-- Main Workspace -->
-    <div id="workspace">
+    <!-- Graph Workspace -->
+    <div id="workspace-graph" class="workspace active">
         <svg id="connections-canvas"></svg>
         <div id="nodes-container"></div>
     </div>
 
+    <!-- Items Workspace -->
+    <div id="workspace-items" class="workspace hidden">
+        <div class="page-header">
+            <h2>Items & Knowledge</h2>
+            <button id="btn-add-item" class="add-btn">+ Add Item</button>
+        </div>
+        <div id="items-list" class="entity-list"></div>
+    </div>
+
+    <!-- People Workspace -->
+    <div id="workspace-people" class="workspace hidden">
+        <div class="page-header">
+            <h2>People (Organizers)</h2>
+            <button id="btn-add-person" class="add-btn">+ Add Person</button>
+        </div>
+        <div id="people-list" class="entity-list"></div>
+    </div>
+
     <!-- Edit Node Modal -->
-    <div id="edit-modal" class="hidden">
+    <div id="edit-modal" class="modal hidden">
         <div class="modal-content">
-            <h3>Edit Node</h3>
-            <label>Owner: <input type="text" id="edit-owner"></label>
+            <h3>Edit Action</h3>
+            <label>Owner: <select id="edit-owner"></select></label>
             <label>Short Description: <input type="text" id="edit-short"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
-            <label>Prerequisite (Input): <input type="text" id="edit-prereq"></label>
-            <label>Output: <input type="text" id="edit-output"></label>
-            <button id="save-node">Save</button>
-            <button id="close-modal">Cancel</button>
+            <label>Prerequisite (Input): <select id="edit-prereq"></select></label>
+            <label>Output: <select id="edit-output"></select></label>
+            <div class="modal-actions">
+                <button id="save-node" class="primary-btn">Save</button>
+                <button id="close-modal">Cancel</button>
+                <button id="delete-node" class="danger-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Entity (Item/Person) Modal -->
+    <div id="edit-entity-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="entity-modal-title">Edit Entity</h3>
+            <label>Name: <input type="text" id="edit-entity-name"></label>
+            <label>Long Description: <textarea id="edit-entity-desc"></textarea></label>
+            <div class="modal-actions">
+                <button id="save-entity" class="primary-btn">Save</button>
+                <button id="close-entity-modal">Cancel</button>
+                <button id="delete-entity" class="danger-btn">Delete</button>
+            </div>
         </div>
     </div>
 
