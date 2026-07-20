@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taraxaplan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="collapsed">
+        <button id="toggle-sidebar">☰</button>
+        <div class="sidebar-content">
+            <h2>Taraxaplan</h2>
+            <ul>
+                <li><a href="#" class="active">Dependency Graph</a></li>
+                <!-- Future pages go here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="workspace">
+        <svg id="connections-canvas"></svg>
+        <div id="nodes-container"></div>
+    </div>
+
+    <!-- Edit Node Modal -->
+    <div id="edit-modal" class="hidden">
+        <div class="modal-content">
+            <h3>Edit Node</h3>
+            <label>Owner: <input type="text" id="edit-owner"></label>
+            <label>Short Description: <input type="text" id="edit-short"></label>
+            <label>Long Description: <textarea id="edit-long"></textarea></label>
+            <label>Prerequisite (Input): <input type="text" id="edit-prereq"></label>
+            <label>Output: <input type="text" id="edit-output"></label>
+            <button id="save-node">Save</button>
+            <button id="close-modal">Cancel</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
