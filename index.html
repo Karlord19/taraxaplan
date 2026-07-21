@@ -26,8 +26,16 @@
 
     <!-- Graph Workspace -->
     <div id="workspace-graph" class="workspace active">
-        <svg id="connections-canvas"></svg>
-        <div id="nodes-container"></div>
+        <div id="graph-controls">
+            <button id="btn-zoom-in">+</button>
+            <button id="btn-zoom-out">-</button>
+            <button id="btn-center-fit">⛶ Center & Fit</button>
+        </div>
+        <!-- Transform Layer handles Pan and Zoom -->
+        <div id="graph-transform-layer">
+            <svg id="connections-canvas"></svg>
+            <div id="nodes-container"></div>
+        </div>
     </div>
 
     <!-- Items Workspace -->
@@ -55,13 +63,15 @@
             <label>Owner: <select id="edit-owner"></select></label>
             <label>Short Description: <input type="text" id="edit-short"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
-            <label>Prerequisite (Input): <select id="edit-prereq"></select></label>
-            <label>Output: <select id="edit-output"></select></label>
+            <label>Prerequisites (Inputs): <div id="edit-prereqs-list" class="checkbox-list"></div></label>
+            <label>Outputs: <div id="edit-outputs-list" class="checkbox-list"></div></label>
             <div class="modal-actions">
-                <button id="save-node" class="primary-btn">Save</button>
-                <button id="close-modal">Cancel</button>
+                <button id="save-node-btn" class="primary-btn">Save</button>
+                <button id="cancel-node-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
+                <div class="spacer"></div>
                 <button id="delete-node" class="danger-btn">Delete</button>
             </div>
+            <small style="color:#aaa; align-self:center; margin-top:10px;">(Or click background to save)</small>
         </div>
     </div>
 
@@ -70,15 +80,21 @@
         <div class="modal-content">
             <h3 id="entity-modal-title">Edit Entity</h3>
             <label>Name: <input type="text" id="edit-entity-name"></label>
+            <label id="color-picker-label" class="hidden">Color: <input type="color" id="edit-entity-color" value="#444444"></label>
             <label>Long Description: <textarea id="edit-entity-desc"></textarea></label>
             <div class="modal-actions">
-                <button id="save-entity" class="primary-btn">Save</button>
-                <button id="close-entity-modal">Cancel</button>
+                <button id="save-entity-btn" class="primary-btn">Save</button>
+                <button id="cancel-entity-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
+                <div class="spacer"></div>
                 <button id="delete-entity" class="danger-btn">Delete</button>
             </div>
+            <small style="color:#aaa; align-self:center; margin-top:10px;">(Or click background to save)</small>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Scripts must load in this order -->
+    <script src="data.js"></script>
+    <script src="graph.js"></script>
+    <script src="ui.js"></script>
 </body>
 </html>
