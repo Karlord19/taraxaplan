@@ -1,5 +1,21 @@
-let editingNodeId = null;
-let editingEntity = null;
+// --- THEME TOGGLE LOGIC ---
+const themeToggleBtn = document.getElementById('theme-toggle');
+const currentTheme = localStorage.getItem('taraxaplan-theme') || 'dark';
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('taraxaplan-theme', theme);
+    if (theme === 'light') {
+        themeToggleBtn.innerHTML = '🌙 Switch to Dark Mode';
+    } else {
+        themeToggleBtn.innerHTML = '☀️ Switch to Light Mode';
+    }
+}
+setTheme(currentTheme);
+themeToggleBtn.addEventListener('click', () => {
+    const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+});
 
 // --- NAVIGATION ---
 document.querySelectorAll('.nav-link').forEach(link => {
@@ -24,7 +40,6 @@ function renderEntities(type, containerId) {
     data[type].forEach(entity => {
         const el = document.createElement('div');
         el.className = 'entity-card';
-        // Apply left border color if it's a person
         if (entity.color) el.style.borderLeftColor = entity.color;
         
         el.innerHTML = `<h4>${entity.name || 'Unnamed'}</h4><p>${entity.description || ''}</p>`;
@@ -42,7 +57,11 @@ function renderAll() {
     renderEntities('people', 'people-list');
 }
 
-// --- NODE MODAL (Click outside to save) ---
+// --- NODE MODAL LOGIC ---
+let editingNodeId = null;
+let currentPrereqs = [];
+let currentOutputs = [];
+
 function populateSelect(selectId, list, selectedValue) {
     const select = document.getElementById(selectId);
     select.innerHTML = '<option value="">-- None --</option>';
@@ -54,14 +73,85 @@ function populateSelect(selectId, list, selectedValue) {
     });
 }
 
-function populateCheckboxes(containerId, list, selectedIds) {
+function renderPills(containerId, idsArray, type) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    list.forEach(item => {
-        const isChecked = selectedIds.includes(item.id) ? 'checked' : '';
-        container.innerHTML += `<label><input type="checkbox" value="${item.id}" ${isChecked}> ${item.name}</label>`;
+    idsArray.forEach(id => {
+        const item = data.items.find(i => i.id === id);
+        if (!item) return;
+        const pill = document.createElement('div');
+        pill.className = 'pill';
+        pill.innerHTML = `<span class="pill-delete" data-id="${id}">✖</span> ${item.name}`;
+        
+        pill.querySelector('.pill-delete').addEventListener('click', () => {
+            if (type === 'prereq') {
+                currentPrereqs = currentPrereqs.filter(p => p !== id);
+                renderPills('edit-prereqs-pills', currentPrereqs, 'prereq');
+            } else {
+                currentOutputs = currentOutputs.filter(p => p !== id);
+                renderPills('edit-outputs-pills', currentOutputs, 'output');
+            }
+        });
+        container.appendChild(pill);
     });
 }
+
+function setupMultiSelect(inputId, dropdownId, pillsContainerId, idsArrayGetter, onAdd) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+
+    input.addEventListener('input', () => {
+        const val = input.value.toLowerCase();
+        dropdown.innerHTML = '';
+        if (!val) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+        
+        const currentIds = idsArrayGetter();
+        const matches = data.items.filter(i => 
+            i.name.toLowerCase().includes(val) && !currentIds.includes(i.id)
+        );
+        
+        if (matches.length === 0) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+        
+        dropdown.classList.remove('hidden');
+        matches.forEach(match => {
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.textContent = match.name;
+            div.addEventListener('mousedown', (e) => { 
+                e.preventDefault(); 
+                onAdd(match.id);
+                input.value = '';
+                dropdown.classList.add('hidden');
+            });
+            dropdown.appendChild(div);
+        });
+    });
+
+    input.addEventListener('blur', () => {
+        dropdown.classList.add('hidden');
+        input.value = ''; 
+    });
+    
+    input.addEventListener('focus', () => {
+        input.dispatchEvent(new Event('input')); 
+    });
+}
+
+setupMultiSelect('search-prereqs', 'dropdown-prereqs', 'edit-prereqs-pills', 
+    () => currentPrereqs, 
+    (id) => { currentPrereqs.push(id); renderPills('edit-prereqs-pills', currentPrereqs, 'prereq'); }
+);
+
+setupMultiSelect('search-outputs', 'dropdown-outputs', 'edit-outputs-pills', 
+    () => currentOutputs, 
+    (id) => { currentOutputs.push(id); renderPills('edit-outputs-pills', currentOutputs, 'output'); }
+);
 
 function openNodeModal(nodeId) {
     editingNodeId = nodeId;
@@ -70,8 +160,12 @@ function openNodeModal(nodeId) {
     document.getElementById('edit-long').value = node.longDesc || '';
     
     populateSelect('edit-owner', data.people, node.ownerId);
-    populateCheckboxes('edit-prereqs-list', data.items, node.prereqIds || []);
-    populateCheckboxes('edit-outputs-list', data.items, node.outputIds || []);
+    
+    currentPrereqs = [...(node.prereqIds || [])];
+    currentOutputs = [...(node.outputIds || [])];
+    
+    renderPills('edit-prereqs-pills', currentPrereqs, 'prereq');
+    renderPills('edit-outputs-pills', currentOutputs, 'output');
     
     document.getElementById('edit-modal').classList.remove('hidden');
 }
@@ -83,19 +177,22 @@ function saveNodeAndClose() {
         node.shortDesc = document.getElementById('edit-short').value;
         node.longDesc = document.getElementById('edit-long').value;
         node.ownerId = document.getElementById('edit-owner').value;
-        node.prereqIds = Array.from(document.querySelectorAll('#edit-prereqs-list input:checked')).map(cb => cb.value);
-        node.outputIds = Array.from(document.querySelectorAll('#edit-outputs-list input:checked')).map(cb => cb.value);
+        node.prereqIds = [...currentPrereqs];
+        node.outputIds = [...currentOutputs];
         renderAll();
     }
     document.getElementById('edit-modal').classList.add('hidden');
     editingNodeId = null;
 }
 
-// Click background to save
 document.getElementById('edit-modal').addEventListener('mousedown', (e) => {
-    if (e.target === document.getElementById('edit-modal')) {
-        saveNodeAndClose();
-    }
+    if (e.target === document.getElementById('edit-modal')) saveNodeAndClose();
+});
+
+document.getElementById('save-node-btn').addEventListener('click', saveNodeAndClose);
+document.getElementById('cancel-node-btn').addEventListener('click', () => {
+    document.getElementById('edit-modal').classList.add('hidden');
+    editingNodeId = null;
 });
 
 document.getElementById('delete-node').addEventListener('click', () => {
@@ -108,7 +205,9 @@ document.getElementById('delete-node').addEventListener('click', () => {
     editingNodeId = null;
 });
 
-// --- ENTITY (ITEM/PERSON) MODAL (Click outside to save) ---
+// --- ENTITY MODAL LOGIC ---
+let editingEntity = null;
+
 document.getElementById('btn-add-item').addEventListener('click', () => openEntityModal('items', null));
 document.getElementById('btn-add-person').addEventListener('click', () => openEntityModal('people', null));
 
@@ -117,11 +216,8 @@ function openEntityModal(type, id) {
     document.getElementById('entity-modal-title').textContent = id ? `Edit ${type === 'items' ? 'Item' : 'Person'}` : `New ${type === 'items' ? 'Item' : 'Person'}`;
     
     const colorLabel = document.getElementById('color-picker-label');
-    if (type === 'people') {
-        colorLabel.classList.remove('hidden');
-    } else {
-        colorLabel.classList.add('hidden');
-    }
+    if (type === 'people') colorLabel.classList.remove('hidden');
+    else colorLabel.classList.add('hidden');
 
     if (id) {
         const entity = data[type].find(e => e.id === id);
@@ -158,11 +254,14 @@ function saveEntityAndClose() {
     editingEntity = null;
 }
 
-// Click background to save
 document.getElementById('edit-entity-modal').addEventListener('mousedown', (e) => {
-    if (e.target === document.getElementById('edit-entity-modal')) {
-        saveEntityAndClose();
-    }
+    if (e.target === document.getElementById('edit-entity-modal')) saveEntityAndClose();
+});
+
+document.getElementById('save-entity-btn').addEventListener('click', saveEntityAndClose);
+document.getElementById('cancel-entity-btn').addEventListener('click', () => {
+    document.getElementById('edit-entity-modal').classList.add('hidden');
+    editingEntity = null;
 });
 
 document.getElementById('delete-entity').addEventListener('click', () => {
@@ -174,25 +273,12 @@ document.getElementById('delete-entity').addEventListener('click', () => {
     editingEntity = null;
 });
 
-// Initial render
-setTimeout(renderAll, 100);
-
-// --- NEW CANCEL / SAVE BUTTONS LOGIC ---
-
-// Stop clicks *inside* the modal content from bubbling up to the background
+// Stop clicks inside modal from triggering background close
 document.querySelector('#edit-modal .modal-content').addEventListener('mousedown', (e) => e.stopPropagation());
 document.querySelector('#edit-entity-modal .modal-content').addEventListener('mousedown', (e) => e.stopPropagation());
 
-// Node Buttons
-document.getElementById('save-node-btn').addEventListener('click', saveNodeAndClose);
-document.getElementById('cancel-node-btn').addEventListener('click', () => {
-    document.getElementById('edit-modal').classList.add('hidden');
-    editingNodeId = null;
-});
-
-// Entity Buttons
-document.getElementById('save-entity-btn').addEventListener('click', saveEntityAndClose);
-document.getElementById('cancel-entity-btn').addEventListener('click', () => {
-    document.getElementById('edit-entity-modal').classList.add('hidden');
-    editingEntity = null;
-});
+// Initial render
+setTimeout(() => {
+    renderAll();
+    if(typeof centerAndFitGraph === 'function') centerAndFitGraph();
+}, 100);

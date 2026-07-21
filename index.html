@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,7 @@
                 <li><a href="#" class="nav-link" data-target="workspace-people">People (Organizers)</a></li>
             </ul>
             <hr class="divider">
+            <button id="theme-toggle" class="action-btn">☀️ Switch to Light Mode</button>
             <button id="btn-save" class="action-btn">💾 Save Data</button>
             <input type="file" id="file-load" accept=".json" class="hidden">
             <button id="btn-load" class="action-btn" onclick="document.getElementById('file-load').click()">📂 Load Data</button>
@@ -61,10 +62,25 @@
         <div class="modal-content">
             <h3>Edit Action</h3>
             <label>Owner: <select id="edit-owner"></select></label>
-            <label>Short Description: <input type="text" id="edit-short"></label>
+            <label>Short Description: <input type="text" id="edit-short" autocomplete="off"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
-            <label>Prerequisites (Inputs): <div id="edit-prereqs-list" class="checkbox-list"></div></label>
-            <label>Outputs: <div id="edit-outputs-list" class="checkbox-list"></div></label>
+            
+            <label>Prerequisites (Inputs):
+                <div class="multi-select-container">
+                    <div id="edit-prereqs-pills" class="pills-container"></div>
+                    <input type="text" id="search-prereqs" class="search-input" autocomplete="off" placeholder="Search and add inputs...">
+                    <div id="dropdown-prereqs" class="dropdown-list hidden"></div>
+                </div>
+            </label>
+            
+            <label>Outputs:
+                <div class="multi-select-container">
+                    <div id="edit-outputs-pills" class="pills-container"></div>
+                    <input type="text" id="search-outputs" class="search-input" autocomplete="off" placeholder="Search and add outputs...">
+                    <div id="dropdown-outputs" class="dropdown-list hidden"></div>
+                </div>
+            </label>
+
             <div class="modal-actions">
                 <button id="save-node-btn" class="primary-btn">Save</button>
                 <button id="cancel-node-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
@@ -79,9 +95,10 @@
     <div id="edit-entity-modal" class="modal hidden">
         <div class="modal-content">
             <h3 id="entity-modal-title">Edit Entity</h3>
-            <label>Name: <input type="text" id="edit-entity-name"></label>
+            <label>Name: <input type="text" id="edit-entity-name" autocomplete="off"></label>
             <label id="color-picker-label" class="hidden">Color: <input type="color" id="edit-entity-color" value="#444444"></label>
             <label>Long Description: <textarea id="edit-entity-desc"></textarea></label>
+            
             <div class="modal-actions">
                 <button id="save-entity-btn" class="primary-btn">Save</button>
                 <button id="cancel-entity-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
@@ -92,7 +109,7 @@
         </div>
     </div>
 
-    <!-- Scripts must load in this order -->
+    <!-- Scripts must load in this exact order -->
     <script src="data.js"></script>
     <script src="graph.js"></script>
     <script src="ui.js"></script>

@@ -10,7 +10,7 @@ const getName = (list, id) => {
 
 const getColor = (id) => {
     const person = data.people.find(p => p.id === id);
-    return person && person.color ? person.color : '#444444';
+    return person && person.color ? person.color : '#888888';
 };
 
 // --- FILE I/O ---
@@ -40,9 +40,8 @@ document.getElementById('file-load').addEventListener('change', (e) => {
             if (!data.items) data.items = [];
             if (!data.people) data.people = [];
             
-            // Re-render everything
             if(typeof renderAll === 'function') renderAll();
-            if(typeof centerAndFitGraph === 'function') centerAndFitGraph();
+            if(typeof centerAndFitGraph === 'function') setTimeout(centerAndFitGraph, 100);
             
         } catch (err) { alert("Error parsing JSON file!"); }
     };
