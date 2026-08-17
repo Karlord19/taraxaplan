@@ -16,6 +16,7 @@
                 <li><a href="#" class="nav-link active" data-target="workspace-graph">Dependency Graph</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-items">Items</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-people">People (Organizers)</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-cleanup">🧹 Cleanup</a></li>
             </ul>
             <hr class="divider">
             <button id="theme-toggle" class="action-btn">☀️ Switch to Light Mode</button>
@@ -32,7 +33,6 @@
             <button id="btn-zoom-out">-</button>
             <button id="btn-center-fit">⛶ Center & Fit</button>
         </div>
-        <!-- Transform Layer handles Pan and Zoom -->
         <div id="graph-transform-layer">
             <svg id="connections-canvas"></svg>
             <div id="nodes-container"></div>
@@ -56,30 +56,47 @@
         </div>
         <div id="people-list" class="entity-list"></div>
     </div>
+    
+    <!-- Cleanup Workspace -->
+    <div id="workspace-cleanup" class="workspace hidden">
+        <div class="page-header">
+            <h2>Cleanup Dashboard</h2>
+        </div>
+        <div id="cleanup-container" style="padding: 20px 40px; overflow-y: auto; height: calc(100vh - 80px);">
+            <!-- Cleanup categories will dynamically render here -->
+        </div>
+    </div>
 
     <!-- Edit Node Modal -->
     <div id="edit-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Edit Action</h3>
+        <div class="modal-content" style="width: 400px; max-height: 90vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Edit Node</h3>
+                <div class="type-toggle">
+                    <label style="display:inline; margin-right:10px;"><input type="radio" name="nodeType" value="action"> Action</label>
+                    <label style="display:inline;"><input type="radio" name="nodeType" value="decision"> Decision</label>
+                </div>
+            </div>
+            
             <label>Owner: <select id="edit-owner"></select></label>
             <label>Short Description: <input type="text" id="edit-short" autocomplete="off"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
             
             <label>Prerequisites (Inputs):
-                <div class="multi-select-container">
-                    <div id="edit-prereqs-pills" class="pills-container"></div>
-                    <input type="text" id="search-prereqs" class="search-input" autocomplete="off" placeholder="Search and add inputs...">
-                    <div id="dropdown-prereqs" class="dropdown-list hidden"></div>
-                </div>
+                <div id="edit-prereqs-wrapper"></div>
             </label>
             
-            <label>Outputs:
-                <div class="multi-select-container">
-                    <div id="edit-outputs-pills" class="pills-container"></div>
-                    <input type="text" id="search-outputs" class="search-input" autocomplete="off" placeholder="Search and add outputs...">
-                    <div id="dropdown-outputs" class="dropdown-list hidden"></div>
-                </div>
-            </label>
+            <div id="standard-outputs-section">
+                <label>Outputs:
+                    <div id="edit-outputs-wrapper"></div>
+                </label>
+            </div>
+
+            <div id="decision-options-section" class="hidden" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <label style="color:var(--text-color); font-weight:bold;">Decision Options:</label>
+                <div id="options-builder-list"></div>
+                <button id="btn-add-option" class="add-btn" style="width:100%; margin-top:10px;">+ Add Option</button>
+            </div>
 
             <div class="modal-actions">
                 <button id="save-node-btn" class="primary-btn">Save</button>

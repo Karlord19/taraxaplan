@@ -1,36 +1,20 @@
 :root {
-    /* Dark Mode (Default) */
-    --bg-color: #1e1e24;
-    --node-bg: #2d2d34;
-    --text-color: #f5f5f5;
-    --accent: #ff6b6b;
-    --accent-hover: #ff4c4c;
-    --line-color: #888;
-    --sidebar-bg: #151519;
-    --input-bg: #1e1e24;
-    --border-color: #444;
-    --pill-bg: #3a3a44;
-    --workspace-bg: #1a1a1f;
+    --bg-color: #1e1e24; --node-bg: #2d2d34; --text-color: #f5f5f5;
+    --accent: #ff6b6b; --accent-hover: #ff4c4c; --line-color: #888;
+    --sidebar-bg: #151519; --input-bg: #1e1e24; --border-color: #444;
+    --pill-bg: #3a3a44; --workspace-bg: #1a1a1f;
 }
 
 [data-theme="light"] {
-    /* Light Mode */
-    --bg-color: #f4f4f9;
-    --node-bg: #ffffff;
-    --text-color: #2d2d34;
-    --accent: #e74c3c;
-    --accent-hover: #c0392b;
-    --line-color: #aaa;
-    --sidebar-bg: #e2e2e8;
-    --input-bg: #ffffff;
-    --border-color: #ccc;
-    --pill-bg: #e2e2e8;
-    --workspace-bg: #eaeaea;
+    --bg-color: #f4f4f9; --node-bg: #ffffff; --text-color: #2d2d34;
+    --accent: #e74c3c; --accent-hover: #c0392b; --line-color: #aaa;
+    --sidebar-bg: #e2e2e8; --input-bg: #ffffff; --border-color: #ccc;
+    --pill-bg: #e2e2e8; --workspace-bg: #eaeaea;
 }
 
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans-serif; background-color: var(--bg-color); color: var(--text-color); overflow: hidden; }
 
-/* Sidebar */
+/* Sidebar & Buttons & Workspaces (unchanged) */
 #sidebar { position: absolute; top: 0; left: 0; width: 250px; height: 100%; background-color: var(--sidebar-bg); transition: transform 0.3s ease; z-index: 100; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
 #sidebar.collapsed { transform: translateX(-250px); }
 #toggle-sidebar { position: absolute; top: 10px; right: -40px; width: 40px; height: 40px; background: var(--sidebar-bg); color: var(--text-color); border: none; cursor: pointer; font-size: 20px; border-radius: 0 5px 5px 0; }
@@ -41,7 +25,6 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans
 .sidebar-content li a:hover, .sidebar-content li a.active { opacity: 1; font-weight: bold; }
 .divider { border: 0; height: 1px; background: var(--border-color); margin: 20px 0; width: 100%; }
 
-/* Buttons */
 .action-btn, .add-btn, button { background: #444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
 .action-btn:hover { background: #555; }
 .primary-btn { background: var(--accent); }
@@ -49,22 +32,19 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans
 .danger-btn { background: #c0392b; margin: 0; }
 .spacer { flex-grow: 1; }
 
-/* Workspaces */
 .workspace { position: absolute; top: 0; left: 250px; width: calc(100vw - 250px); height: 100vh; overflow: auto; transition: left 0.3s, width 0.3s; }
 #sidebar.collapsed ~ .workspace { left: 0; width: 100vw; }
 .hidden { display: none !important; }
 
-/* Graph Controls Overlay */
+/* Graph Layer */
 #graph-controls { position: absolute; bottom: 20px; right: 20px; z-index: 50; display: flex; gap: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; }
 #graph-controls button { margin: 0; padding: 8px 12px; font-weight: bold; }
-
-/* Graph Canvas & Transform */
 #workspace-graph { overflow: hidden; background-color: var(--workspace-bg); cursor: grab; }
 #workspace-graph:active { cursor: grabbing; }
 #graph-transform-layer { transform-origin: 0 0; width: 1px; height: 1px; position: absolute; }
 #connections-canvas, #nodes-container { position: absolute; top: 0; left: 0; overflow: visible; }
 #connections-canvas { pointer-events: none; }
-.connection-path { stroke: var(--line-color); stroke-width: 2; fill: none; }
+.connection-path { stroke-width: 2; fill: none; }
 .connection-hitbox { stroke: transparent; stroke-width: 15; fill: none; pointer-events: stroke; cursor: context-menu; }
 .knee-point { fill: var(--accent); cursor: grab; pointer-events: all; }
 #nodes-container { pointer-events: none; }
@@ -72,15 +52,26 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans
 /* Nodes */
 .node {
     position: absolute; width: 180px; background-color: var(--node-bg); border: 1px solid var(--border-color); border-top: 5px solid var(--border-color); border-radius: 6px;
-    padding: 10px; pointer-events: all; cursor: grab; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    pointer-events: all; cursor: grab; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+}
+.node.selected {
+    outline: 2px solid var(--accent);
+    box-shadow: 0 0 15px var(--accent);
 }
 .node:active { cursor: grabbing; }
+.node-core { padding: 10px; }
 .node-owner { font-size: 0.8em; color: var(--text-color); margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
 .node-desc { font-weight: bold; margin-bottom: 10px; }
 .node-req { font-size: 0.85em; color: #888; }
 .node-output { font-size: 0.85em; color: var(--accent); }
 
-/* Lists (Items & People) */
+/* Decision Node Options */
+.node-decision-opts { border-top: 1px solid var(--border-color); display: flex; flex-direction: column; }
+.node-opt-row { padding: 6px 10px; font-size: 0.85em; border-bottom: 1px dotted var(--border-color); position: relative; }
+.node-opt-row:last-child { border-bottom: none; }
+.node-opt-row::after { content: ''; position: absolute; right: 0; top: 50%; width: 6px; height: 6px; background: var(--line-color); border-radius: 50%; transform: translate(50%, -50%); }
+
+/* Entity Lists */
 .page-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border-color); }
 .entity-list { padding: 20px 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
 .entity-card { background: var(--node-bg); padding: 15px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); border-left: 5px solid var(--border-color); }
@@ -91,29 +82,20 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans
 /* Modals */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 200; }
 .modal-content { background: var(--node-bg); padding: 20px; border-radius: 8px; display: flex; flex-direction: column; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
-.modal-content label { margin-bottom: 10px; display: flex; flex-direction: column; font-size: 0.9em; opacity: 0.8;}
+.modal-content label { margin-bottom: 10px; display: flex; flex-direction: column; font-size: 0.9em; color: #b0b0b0; position: relative;}
+.modal-content label:focus-within { z-index: 9999; }
 .modal-content input, .modal-content textarea, .modal-content select { margin-top: 5px; padding: 8px; background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 4px; font-family: sans-serif; }
 .modal-content input[type="color"] { height: 40px; padding: 0; cursor: pointer; width: 100%; }
 .modal-content textarea { resize: both; min-height: 60px; min-width: 200px; }
 .modal-actions { display: flex; justify-content: space-between; margin-top: 15px; }
 
+/* Option Builder Block */
+.option-builder-block { background: var(--workspace-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 10px; position: relative;}
+.option-builder-block:focus-within { z-index: 9999; }
+
 /* Multi-Select & Pills */
-.multi-select-container { 
-    position: relative; 
-    background: var(--input-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: 4px; 
-    padding: 5px; 
-    margin-top: 5px; 
-    display: flex; 
-    flex-direction: column; 
-}
-
-/* This forces the active search box to jump over everything else */
-.multi-select-container:focus-within {
-    z-index: 9999;
-}
-
+.multi-select-container { position: relative; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 5px; margin-top: 5px; display: flex; flex-direction: column; }
+.multi-select-container:focus-within { z-index: 9999; }
 .pills-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px; }
 .pills-container:empty { margin-bottom: 0; }
 .pill { background: var(--pill-bg); color: var(--text-color); border-radius: 15px; padding: 4px 10px; font-size: 0.85em; display: flex; align-items: center; border: 1px solid var(--border-color); }
@@ -121,38 +103,26 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: sans
 .pill-delete:hover { color: var(--accent-hover); }
 
 .search-input { background: transparent !important; border: none !important; color: var(--text-color) !important; padding: 5px !important; outline: none; margin-top: 0 !important; }
-
-/* The dropdown menu */
-.dropdown-list { 
-    position: absolute; 
-    top: 100%; 
-    left: -1px; /* Aligns perfectly with the border */
-    right: -1px; 
-    background: var(--node-bg); 
-    border: 1px solid var(--border-color); 
-    border-top: 1px solid #555;
-    border-radius: 0 0 6px 6px; 
-    max-height: 180px; /* Forces it to be scrollable after ~5 items */
-    overflow-y: auto; /* Adds the scrollbar */
-    z-index: 10000; /* Forces it to the very front */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.6); 
-}
-
+.dropdown-list { position: absolute; top: 100%; left: -1px; right: -1px; background: var(--node-bg); border: 1px solid var(--border-color); border-top: 1px solid #555; border-radius: 0 0 6px 6px; max-height: 180px; overflow-y: auto; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
 .dropdown-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
 .dropdown-item:last-child { border-bottom: none; }
 .dropdown-item:hover { background: var(--accent); color: white; }
+.create-item { background: rgba(46, 204, 113, 0.2); color: #2ecc71; font-weight: bold; }
+.create-item:hover { background: #2ecc71; color: white; }
 
-/* Update this rule to remove opacity and add relative positioning */
-.modal-content label { 
+/* Cleanup Dashboard Styles */
+.cleanup-section { margin-bottom: 30px; }
+.cleanup-section h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; color: var(--accent); }
+.cleanup-card { 
+    background: var(--input-bg); 
+    border: 1px solid var(--border-color); 
+    padding: 15px; 
+    border-radius: 6px; 
     margin-bottom: 10px; 
     display: flex; 
-    flex-direction: column; 
-    font-size: 0.9em; 
-    color: #b0b0b0; /* Using color instead of opacity to prevent stacking lock */
-    position: relative;
+    justify-content: space-between; 
+    align-items: center; 
 }
-
-/* Add this new rule to bring the entire label to the front when typing */
-.modal-content label:focus-within {
-    z-index: 9999;
-}
+.cleanup-info { display: flex; flex-direction: column; gap: 5px; }
+.cleanup-title { font-weight: bold; color: var(--text-color); }
+.cleanup-desc { font-size: 0.85em; opacity: 0.7; color: var(--text-color); }

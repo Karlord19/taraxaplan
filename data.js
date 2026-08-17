@@ -36,6 +36,12 @@ document.getElementById('file-load').addEventListener('change', (e) => {
             data.nodes.forEach(n => {
                 if (!n.prereqIds) n.prereqIds = n.prereqId ? [n.prereqId] : [];
                 if (!n.outputIds) n.outputIds = n.outputId ? [n.outputId] : [];
+                if (n.options) {
+                    n.options.forEach(opt => {
+                        if (!opt.prereqIds) opt.prereqIds = [];
+                        if (!opt.outputIds) opt.outputIds = [];
+                    });
+                }
             });
             if (!data.items) data.items = [];
             if (!data.people) data.people = [];
