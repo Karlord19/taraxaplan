@@ -15,23 +15,27 @@
             <ul>
                 <li><a href="#" class="nav-link active" data-target="workspace-graph">Dependency Graph</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-items">Items</a></li>
-                <li><a href="#" class="nav-link" data-target="workspace-people">People (Organizers)</a></li>
-                <li><a href="#" class="nav-link" data-target="workspace-cleanup">🧹 Cleanup</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-categories">Categories</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-people">People</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-cleanup">Cleanup</a></li>
             </ul>
             <hr class="divider">
-            <button id="theme-toggle" class="action-btn">☀️ Switch to Light Mode</button>
-            <button id="btn-save" class="action-btn">💾 Save Data</button>
+            <button id="theme-toggle" class="action-btn">Switch to Light Mode</button>
+            <button id="btn-save" class="action-btn">Save Data</button>
             <input type="file" id="file-load" accept=".json" class="hidden">
-            <button id="btn-load" class="action-btn" onclick="document.getElementById('file-load').click()">📂 Load Data</button>
+            <button id="btn-load" class="action-btn" onclick="document.getElementById('file-load').click()">Load Data</button>
         </div>
     </div>
 
     <!-- Graph Workspace -->
     <div id="workspace-graph" class="workspace active">
         <div id="graph-controls">
+            <button id="btn-filter-graph" style="background: var(--accent); color: white;">🔍 Filter</button>
+            <button id="btn-clear-filter" class="danger-btn hidden">✖ Clear</button>
+            <div style="width: 10px;"></div> <!-- Spacer -->
             <button id="btn-zoom-in">+</button>
             <button id="btn-zoom-out">-</button>
-            <button id="btn-center-fit">⛶ Center & Fit</button>
+            <button id="btn-center-fit">⛶ Center</button>
         </div>
         <div id="graph-transform-layer">
             <svg id="connections-canvas"></svg>
@@ -42,16 +46,25 @@
     <!-- Items Workspace -->
     <div id="workspace-items" class="workspace hidden">
         <div class="page-header">
-            <h2>Items & Knowledge</h2>
+            <h2>Items</h2>
             <button id="btn-add-item" class="add-btn">+ Add Item</button>
         </div>
         <div id="items-list" class="entity-list"></div>
+    </div>
+    
+    <!-- Categories Workspace -->
+    <div id="workspace-categories" class="workspace hidden">
+        <div class="page-header">
+            <h2>Categories</h2>
+            <button id="btn-add-category" class="add-btn">+ Add Category</button>
+        </div>
+        <div id="categories-list" class="entity-list"></div>
     </div>
 
     <!-- People Workspace -->
     <div id="workspace-people" class="workspace hidden">
         <div class="page-header">
-            <h2>People (Organizers)</h2>
+            <h2>People</h2>
             <button id="btn-add-person" class="add-btn">+ Add Person</button>
         </div>
         <div id="people-list" class="entity-list"></div>
@@ -60,10 +73,33 @@
     <!-- Cleanup Workspace -->
     <div id="workspace-cleanup" class="workspace hidden">
         <div class="page-header">
-            <h2>Cleanup Dashboard</h2>
+            <h2>Cleanup</h2>
         </div>
         <div id="cleanup-container" style="padding: 20px 40px; overflow-y: auto; height: calc(100vh - 80px);">
-            <!-- Cleanup categories will dynamically render here -->
+        </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div id="filter-modal" class="modal hidden">
+        <div class="modal-content" style="width: 400px; max-height: 90vh; overflow-y: auto;">
+            <h3>Filter Graph</h3>
+            
+            <label>Filter by People:
+                <div id="filter-people-wrapper"></div>
+            </label>
+            
+            <label>Filter by Items:
+                <div id="filter-items-wrapper"></div>
+            </label>
+            
+            <label>Filter by Actions/Decisions:
+                <div id="filter-nodes-wrapper"></div>
+            </label>
+
+            <div class="modal-actions" style="margin-top: 25px;">
+                <button id="apply-filter-btn" class="primary-btn">Show</button>
+                <button id="cancel-filter-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -78,7 +114,9 @@
                 </div>
             </div>
             
-            <label>Owner: <select id="edit-owner"></select></label>
+            <label>Owners:
+                <div id="edit-owners-wrapper"></div>
+            </label>
             <label>Short Description: <input type="text" id="edit-short" autocomplete="off"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
             
@@ -104,16 +142,22 @@
                 <div class="spacer"></div>
                 <button id="delete-node" class="danger-btn">Delete</button>
             </div>
-            <small style="color:#aaa; align-self:center; margin-top:10px;">(Or click background to save)</small>
         </div>
     </div>
 
-    <!-- Edit Entity (Item/Person) Modal -->
+    <!-- Edit Entity (Item/Person/Category) Modal -->
     <div id="edit-entity-modal" class="modal hidden">
         <div class="modal-content">
-            <h3 id="entity-modal-title">Edit Entity</h3>
-            <label>Name: <input type="text" id="edit-entity-name" autocomplete="off"></label>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="entity-modal-title" style="margin:0;">Edit Entity</h3>
+                <button id="btn-magnify-entity" class="action-btn" style="margin:0; padding: 5px 10px;" title="Save and view in Graph">🔍 Focus in Graph</button>
+            </div>
+            <label style="margin-top:15px;">Name: <input type="text" id="edit-entity-name" autocomplete="off"></label>
+            
+            <label id="category-picker-label" class="hidden">Category: <select id="edit-entity-category"></select></label>
+            <label id="item-owner-picker-label" class="hidden">Owner: <select id="edit-entity-owner"></select></label>
             <label id="color-picker-label" class="hidden">Color: <input type="color" id="edit-entity-color" value="#444444"></label>
+            
             <label>Long Description: <textarea id="edit-entity-desc"></textarea></label>
             
             <div class="modal-actions">
@@ -122,11 +166,9 @@
                 <div class="spacer"></div>
                 <button id="delete-entity" class="danger-btn">Delete</button>
             </div>
-            <small style="color:#aaa; align-self:center; margin-top:10px;">(Or click background to save)</small>
         </div>
     </div>
 
-    <!-- Scripts must load in this exact order -->
     <script src="data.js"></script>
     <script src="graph.js"></script>
     <script src="ui.js"></script>
