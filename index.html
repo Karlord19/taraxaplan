@@ -6,18 +6,22 @@
     <title>Taraxaplan</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-active-tab="workspace-graph">
     <!-- Sidebar -->
     <div id="sidebar">
         <button id="toggle-sidebar">☰</button>
         <div class="sidebar-content">
             <h2>Taraxaplan</h2>
             <ul>
-                <li><a href="#" class="nav-link active" data-target="workspace-graph">Dependency Graph</a></li>
+                <li><a href="#" class="nav-link active" data-target="workspace-graph">Graph</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-items">Items</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-info">Info</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-categories">Categories</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-people">People</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-rooms">Rooms</a></li>
                 <li><a href="#" class="nav-link" data-target="workspace-cleanup">Cleanup</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-export">Export</a></li>
+                <li><a href="#" class="nav-link" data-target="workspace-controls">Controls</a></li>
             </ul>
             <hr class="divider">
             <button id="theme-toggle" class="action-btn">Switch to Light Mode</button>
@@ -29,10 +33,10 @@
 
     <!-- Graph Workspace -->
     <div id="workspace-graph" class="workspace active">
-        <div id="graph-controls">
+        <div id="graph-controls" class="no-print">
             <button id="btn-filter-graph" style="background: var(--accent); color: white;">🔍 Filter</button>
             <button id="btn-clear-filter" class="danger-btn hidden">✖ Clear</button>
-            <div style="width: 10px;"></div> <!-- Spacer -->
+            <div style="width: 10px;"></div>
             <button id="btn-zoom-in">+</button>
             <button id="btn-zoom-out">-</button>
             <button id="btn-center-fit">⛶ Center</button>
@@ -45,16 +49,25 @@
 
     <!-- Items Workspace -->
     <div id="workspace-items" class="workspace hidden">
-        <div class="page-header">
+        <div class="page-header no-print">
             <h2>Items</h2>
             <button id="btn-add-item" class="add-btn">+ Add Item</button>
         </div>
         <div id="items-list" class="entity-list"></div>
     </div>
     
+    <!-- Info Workspace -->
+    <div id="workspace-info" class="workspace hidden">
+        <div class="page-header no-print">
+            <h2>Info</h2>
+            <button id="btn-add-info" class="add-btn">+ Add Info</button>
+        </div>
+        <div id="info-list" class="entity-list"></div>
+    </div>
+    
     <!-- Categories Workspace -->
     <div id="workspace-categories" class="workspace hidden">
-        <div class="page-header">
+        <div class="page-header no-print">
             <h2>Categories</h2>
             <button id="btn-add-category" class="add-btn">+ Add Category</button>
         </div>
@@ -63,39 +76,88 @@
 
     <!-- People Workspace -->
     <div id="workspace-people" class="workspace hidden">
-        <div class="page-header">
+        <div class="page-header no-print">
             <h2>People</h2>
             <button id="btn-add-person" class="add-btn">+ Add Person</button>
         </div>
         <div id="people-list" class="entity-list"></div>
     </div>
+
+    <!-- Rooms Workspace -->
+    <div id="workspace-rooms" class="workspace hidden">
+        <div class="page-header no-print">
+            <h2>Rooms</h2>
+            <button id="btn-add-room" class="add-btn">+ Add Room</button>
+        </div>
+        <div id="rooms-list" class="entity-list"></div>
+    </div>
     
     <!-- Cleanup Workspace -->
     <div id="workspace-cleanup" class="workspace hidden">
-        <div class="page-header">
+        <div class="page-header no-print">
             <h2>Cleanup</h2>
         </div>
-        <div id="cleanup-container" style="padding: 20px 40px; overflow-y: auto; height: calc(100vh - 80px);">
+        <div id="cleanup-container" style="padding: 20px 40px; overflow-y: auto; height: calc(100vh - 80px);"></div>
+    </div>
+
+    <!-- Controls Workspace -->
+    <div id="workspace-controls" class="workspace hidden">
+        <div class="page-header no-print">
+            <h2>Controls & Manual</h2>
+        </div>
+        <div style="padding: 20px 40px; line-height: 1.6; max-width: 900px; color: var(--text-color);">
+            <h3>Graph</h3>
+            <ul style="padding-left: 20px;">
+                <li><strong>Move Canvas:</strong> Left-click and drag the empty background.</li>
+                <li><strong>Zoom:</strong> Scroll wheel or use the <code>+</code> / <code>-</code> buttons.</li>
+                <li><strong>Center View:</strong> Click the "Center" button to fit the entire graph on screen.</li>
+            </ul>
+            <h3>Nodes & Actions</h3>
+            <ul style="padding-left: 20px;">
+                <li><strong>Create Action:</strong> Right-click anywhere on the empty background.</li>
+                <li><strong>Edit Action:</strong> Right-click an existing node.</li>
+                <li><strong>Move Node:</strong> Left-click and drag a node.</li>
+                <li><strong>Select Multiple:</strong> Hold <code>Shift</code> and Left-Click multiple nodes to select them and move them as a group. Left-click the background to drop the selection.</li>
+            </ul>
+            <h3>Lines & Knees</h3>
+            <ul style="padding-left: 20px;">
+                <li><strong>Add a Knee (Bend Line):</strong> Hold <code>Shift</code> and Left-Click anywhere on an existing line.</li>
+                <li><strong>Move Knee:</strong> Left-click and drag the knee dot.</li>
+                <li><strong>Delete Knee:</strong> Hold <code>Shift</code> and Left-Click the knee dot.</li>
+            </ul>
+            <h3>Features & Exports</h3>
+            <ul style="padding-left: 20px;">
+                <li><strong>Owners are Critical:</strong> The entire export system builds organizers' schedules based on what they "Own". Always ensure your Items, Info, and Actions are assigned to the correct People and Rooms.</li>
+                <li><strong>Filtering:</strong> Use the "Filter" button to quickly find overlapping storylines. Click the 🔍 Magnifier icon in any Item/Person edit window to instantly isolate their exact storyline in the graph.</li>
+                <li><strong>Printing:</strong> The Export tab structures all data into printable schedules. Use "Export graph" to save a high-resolution, single-page PDF vector of your chart.</li>
+            </ul>
         </div>
     </div>
 
+    <!-- Export Workspace -->
+    <div id="workspace-export" class="workspace hidden">
+        <div class="page-header no-print">
+            <h2>Export & Print</h2>
+            <div style="display:flex; gap:10px;">
+                <button id="btn-export-graph" class="action-btn" style="background:#8e44ad;">Export graph</button>
+                <button id="btn-export-instructions" class="primary-btn">Export instructions</button>
+            </div>
+        </div>
+        <div class="export-controls no-print" style="padding: 20px 40px; background: var(--node-bg); border-bottom: 1px solid var(--border-color);">
+            <label style="color:var(--text-color); font-weight:bold;">Filter Export by Owner (Leave empty for everyone):
+                <div id="export-filter-wrapper"></div>
+            </label>
+        </div>
+        <div id="export-content" style="padding: 40px;"></div>
+    </div>
+
     <!-- Filter Modal -->
-    <div id="filter-modal" class="modal hidden">
+    <div id="filter-modal" class="modal hidden no-print">
         <div class="modal-content" style="width: 400px; max-height: 90vh; overflow-y: auto;">
             <h3>Filter Graph</h3>
-            
-            <label>Filter by People:
-                <div id="filter-people-wrapper"></div>
-            </label>
-            
-            <label>Filter by Items:
-                <div id="filter-items-wrapper"></div>
-            </label>
-            
-            <label>Filter by Actions/Decisions:
-                <div id="filter-nodes-wrapper"></div>
-            </label>
-
+            <label>Filter by People/Rooms: <div id="filter-people-wrapper"></div></label>
+            <label>Filter by Items: <div id="filter-items-wrapper"></div></label>
+            <label>Filter by Actions/Decisions: <div id="filter-nodes-wrapper"></div></label>
             <div class="modal-actions" style="margin-top: 25px;">
                 <button id="apply-filter-btn" class="primary-btn">Show</button>
                 <button id="cancel-filter-btn" class="action-btn" style="margin-left:10px;">Cancel</button>
@@ -104,7 +166,7 @@
     </div>
 
     <!-- Edit Node Modal -->
-    <div id="edit-modal" class="modal hidden">
+    <div id="edit-modal" class="modal hidden no-print">
         <div class="modal-content" style="width: 400px; max-height: 90vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3>Edit Node</h3>
@@ -114,20 +176,15 @@
                 </div>
             </div>
             
-            <label>Owners:
+            <label>Owners (People/Rooms):
                 <div id="edit-owners-wrapper"></div>
             </label>
             <label>Short Description: <input type="text" id="edit-short" autocomplete="off"></label>
             <label>Long Description: <textarea id="edit-long"></textarea></label>
-            
-            <label>Prerequisites (Inputs):
-                <div id="edit-prereqs-wrapper"></div>
-            </label>
+            <label>Prerequisites (Inputs): <div id="edit-prereqs-wrapper"></div></label>
             
             <div id="standard-outputs-section">
-                <label>Outputs:
-                    <div id="edit-outputs-wrapper"></div>
-                </label>
+                <label>Outputs: <div id="edit-outputs-wrapper"></div></label>
             </div>
 
             <div id="decision-options-section" class="hidden" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
@@ -145,21 +202,18 @@
         </div>
     </div>
 
-    <!-- Edit Entity (Item/Person/Category) Modal -->
-    <div id="edit-entity-modal" class="modal hidden">
+    <!-- Edit Entity Modal -->
+    <div id="edit-entity-modal" class="modal hidden no-print">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 id="entity-modal-title" style="margin:0;">Edit Entity</h3>
                 <button id="btn-magnify-entity" class="action-btn" style="margin:0; padding: 5px 10px;" title="Save and view in Graph">🔍 Focus in Graph</button>
             </div>
-            <label style="margin-top:15px;">Name: <input type="text" id="edit-entity-name" autocomplete="off"></label>
-            
+            <label style="margin-top:15px;">Short Name: <input type="text" id="edit-entity-name" autocomplete="off"></label>
             <label id="category-picker-label" class="hidden">Category: <select id="edit-entity-category"></select></label>
-            <label id="item-owner-picker-label" class="hidden">Owner: <select id="edit-entity-owner"></select></label>
+            <label id="entity-owner-picker-label" class="hidden">Owners: <div id="edit-entity-owners-wrapper"></div></label>
             <label id="color-picker-label" class="hidden">Color: <input type="color" id="edit-entity-color" value="#444444"></label>
-            
             <label>Long Description: <textarea id="edit-entity-desc"></textarea></label>
-            
             <div class="modal-actions">
                 <button id="save-entity-btn" class="primary-btn">Save</button>
                 <button id="cancel-entity-btn" class="action-btn" style="margin-left:10px;">Cancel</button>

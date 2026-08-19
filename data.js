@@ -1,17 +1,27 @@
 // --- STATE MANAGEMENT ---
-let data = { nodes: [], knees: {}, items: [], people: [], categories: [] };
+let data = { nodes: [], knees: {}, items: [], people: [], rooms: [], categories: [], info: [] };
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const getName = (list, id) => {
-    const item = list.find(i => i.id === id);
-    if (!item) return 'Unknown';
-    return item.name || item.shortDesc || 'Unknown';
+    let item = null;
+    if (list) item = list.find(i => i.id === id);
+    if (!item) {
+        item = data.items.find(i => i.id === id) || 
+               data.people.find(i => i.id === id) || 
+               data.rooms.find(i => i.id === id) ||
+               data.categories.find(i => i.id === id) ||
+               data.info.find(i => i.id === id);
+    }
+    return item ? (item.name || item.shortDesc || 'Unknown') : 'Unknown';
 }
 
 const getColor = (id) => {
     const person = data.people.find(p => p.id === id);
-    return person && person.color ? person.color : '#888888';
+    if (person && person.color) return person.color;
+    const room = data.rooms.find(r => r.id === id);
+    if (room && room.color) return room.color;
+    return '#888888';
 };
 
 const getItemHTML = (id) => {
@@ -28,10 +38,7 @@ const getItemHTML = (id) => {
 
 const getItemsHTMLList = (idsArray) => {
     if (!idsArray) return '';
-    return idsArray
-        .filter(id => data.items.some(i => i.id === id))
-        .map(id => getItemHTML(id))
-        .join(', ');
+    return idsArray.filter(id => data.items.some(i => i.id === id)).map(id => getItemHTML(id)).join(', ');
 };
 
 // --- FILE I/O ---
@@ -40,9 +47,7 @@ document.getElementById('btn-save').addEventListener('click', () => {
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = "taraxaplan_data.json";
-    a.click();
+    a.href = url; a.download = "taraxaplan_data.json"; a.click();
     URL.revokeObjectURL(url);
 });
 
@@ -68,8 +73,15 @@ document.getElementById('file-load').addEventListener('change', (e) => {
             });
             
             if (!data.items) data.items = [];
+            data.items.forEach(i => {
+                if (i.ownerId) { i.ownerIds = [i.ownerId]; delete i.ownerId; }
+                if (!i.ownerIds) i.ownerIds = [];
+            });
+            
             if (!data.people) data.people = [];
+            if (!data.rooms) data.rooms = [];
             if (!data.categories) data.categories = [];
+            if (!data.info) data.info = [];
             
             if(typeof renderAll === 'function') renderAll();
             if(typeof centerAndFitGraph === 'function') setTimeout(centerAndFitGraph, 100);
